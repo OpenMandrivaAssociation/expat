@@ -1,56 +1,54 @@
+%define date 2007-06-05
 %define libname_orig libexpat
-%define major 0
-%define libname %mklibname %{name} %{major}
+%define major 1
+%define libname %mklibname expat %{major}
 
-Summary:	Expat is an XML parser written in C
-Name:		expat
-Version:	1.95.8
-Release:	%mkrel 4
-License:	MPL or GPL
-Group:		Development/Other
-URL:		http://www.jclark.com/xml/expat.html
-Source:		http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.bz2
-Requires:	%{libname} = %{version}-%{release}
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Summary:        Expat is an XML parser written in C
+Name:           expat
+Version:        2.0.1
+Release:        %mkrel 1
+License:        MPL or GPL
+Group:          Development/Other
+URL:            http://www.jclark.com/xml/expat.html
+Source0         http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.gz
+Requires:       %{libname} = %{version}-%{release}
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
 fully conforming. It is currently not a validating XML parser.
 
-%package -n	%{libname}
-Summary:	Main library for expat
-Group:		Development/C
-Obsoletes:	libexpat1_95
-Provides:	libexpat1_95 = %{version}-%{release}
+%package -n %{libname}
+Summary:        Main library for expat
+Group:          Development/C
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with expat.
 
-%package -n	%{libname}-devel
-Summary:	Development environment for the expat XML parser
-Group:		Development/C
-Requires:	%{libname} = %{version}
-Provides:       %{libname_orig}-devel = %{version}-%{release} %{name}-devel = %{version}-%{release}
-Obsoletes:      %{name}-devel
-Obsoletes:      libexpat1_95-devel
-Provides:       libexpat1_95-devel = %{version}-%{release}
+%package -n %{libname}-devel
+Summary:        Development environment for the expat XML parser
+Group:          Development/C
+Requires:       %{libname} = %{version}
+Provides:       %{libname_orig}-devel = %{version}-%{release}
+Provides:       %{name}-devel = %{version}-%{release}
+Obsoletes:      %{name}-devel < %{version}-%{release}
 
-%description -n	%{libname}-devel
+%description -n %{libname}-devel
 Development environment for the expat XML parser
 
 %prep
-%setup -q
+%setup -q -n expat-%{date}
 
 %build
-%configure2_5x
-%make
+%{configure2_5x}
+%{make}
  
 %install
-rm -rf %{buildroot}
+%{__rm} -rf %{buildroot}
 
-%makeinstall man1dir=%{buildroot}%{_mandir}/man1
-#rm -f %{buildroot}%{_mandir}/xmlwf.1*
+%{makeinstall} man1dir=%{buildroot}%{_mandir}/man1
+#%{__rm} -f %{buildroot}%{_mandir}/xmlwf.1*
 
 %post -n %{libname} -p /sbin/ldconfig
 
@@ -61,7 +59,7 @@ rm -rf %{buildroot}
 %postun -p /sbin/ldconfig
 
 %clean
-rm -rf %{buildroot}
+%{__rm} -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -80,5 +78,3 @@ rm -rf %{buildroot}
 %{_includedir}/expat_external.h
 %{_libdir}/libexpat.a
 %{_libdir}/libexpat.la
-
-

@@ -5,7 +5,7 @@
 Summary:	Expat is an XML parser written in C
 Name:		expat
 Version:	2.0.1
-Release:	%mkrel 3
+Release:	%mkrel 4
 License:	MPL or GPL
 Group:		Development/Other
 URL:		http://www.libexpat.org
@@ -41,6 +41,12 @@ Development environment for the expat XML parser.
 %setup -q
 
 %build
+%if %mdkversion >= 200710
+export CFLAGS="%{optflags} -fstack-protector"
+export CXXFLAGS="%{optflags} -fstack-protector"
+export FFLAGS="%{optflags} -fstack-protector"
+%endif
+
 %configure2_5x
 %make
  

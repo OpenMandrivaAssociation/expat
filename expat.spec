@@ -11,6 +11,7 @@ Group:		Development/Other
 URL:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.bz2
 Requires:	%{libname} = %{version}-%{release}
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be

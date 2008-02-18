@@ -2,7 +2,7 @@
 %define major 1
 %define libname %mklibname expat %{major}
 
-Summary:	Expat is an XML parser written in C
+Summary:	XML parser written in C
 Name:		expat
 Version:	2.0.1
 Release:	%mkrel 5

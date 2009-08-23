@@ -5,11 +5,12 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.0.1
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	MPL or GPL
 Group:		Development/Other
 URL:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.bz2
+Patch0:		expat-2.0.1-CVE-2009-XXXX.diff
 Requires:	%{libname} = %{version}-%{release}
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -39,14 +40,9 @@ Development environment for the expat XML parser.
 
 %prep
 %setup -q
+%patch0 -p0 -b .CVE-2009-XXXX
 
 %build
-%if %mdkversion >= 200710
-export CFLAGS="%{optflags} -fstack-protector"
-export CXXFLAGS="%{optflags} -fstack-protector"
-export FFLAGS="%{optflags} -fstack-protector"
-%endif
-
 %configure2_5x
 %make
  

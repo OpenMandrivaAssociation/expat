@@ -5,12 +5,15 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.0.1
-Release:	%mkrel 10
+Release:	%mkrel 11
 License:	MPL or GPL
 Group:		Development/Other
 URL:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.bz2
-Patch0:		expat-2.0.1-CVE-2009-XXXX.diff
+Patch0:		expat-2.0.1-CVE-2009-3720.diff
+Patch1:		expat-2.0.1-CVE-2009-3560.diff
+Patch2:		expat-2.0.1-confcxx.patch
+BuildRequires:	libtool
 Requires:	%{libname} = %{version}-%{release}
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -32,20 +35,31 @@ Group:		Development/C
 Requires:       %{libname} = %{version}-%{release}
 Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%mklibname expat -d 0
-Provides:	%mklibname expat -d 0
+Obsoletes:	%{mklibname expat -d 0}
+Provides:	%{mklibname expat -d 0} = %{version}-%{release}
 
 %description -n %{libname}-devel
 Development environment for the expat XML parser.
 
 %prep
+
 %setup -q
-%patch0 -p0 -b .CVE-2009-XXXX
+%patch0 -p0 -b .CVE-2009-3720
+%patch1 -p0 -b .CVE-2009-3560
+%patch2 -p1 -b .confcxx
 
 %build
+rm -rf autom4te*.cache
+rm conftools/libtool.m4
+libtoolize --copy --force --automake; aclocal; autoheader; autoconf
+export CFLAGS="%{optflags} -fPIC"
+
 %configure2_5x
 %make
- 
+
+%check
+make check
+
 %install
 rm -rf %{buildroot}
 

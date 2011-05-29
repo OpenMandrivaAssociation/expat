@@ -1,11 +1,13 @@
 %define libname_orig libexpat
 %define major 1
 %define libname %mklibname expat %{major}
+%define develname %mklibname expat -d
+%define staticname %mklibname expat -s -d
 
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.0.1
-Release:	%mkrel 14
+Release:	%mkrel 15
 License:	MPL or GPL
 Group:		Development/Other
 URL:		http://www.libexpat.org
@@ -29,7 +31,7 @@ Group:		Development/C
 This package contains the library needed to run programs dynamically
 linked with expat.
 
-%package -n %{libname}-devel
+%package -n %{develname}
 Summary:	Development environment for the expat XML parser
 Group:		Development/C
 Requires:       %{libname} = %{version}-%{release}
@@ -37,12 +39,21 @@ Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{mklibname expat -d 0}
 Provides:	%{mklibname expat -d 0} = %{version}-%{release}
+Obsoletes:	%{mklibname expat -d 1}
 
-%description -n %{libname}-devel
+%description -n %{develname}
 Development environment for the expat XML parser.
 
-%prep
+%package -n %{staticname}
+Summary:	Static library for the expat XML parser
+Group:		Development/C
+Requires:       %{develname} = %{version}-%{release}
+Provides:	%{name}-static-devel = %{version}-%{release}
 
+%description -n %{staticname}
+Static library for the expat XML parser.
+
+%prep
 %setup -q
 %patch0 -p0 -b .CVE-2009-3720
 %patch1 -p0 -b .CVE-2009-3560
@@ -85,11 +96,14 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{_libdir}/libexpat.so.%{major}*
 
-%files -n %{libname}-devel
+%files -n %{develname}
 %defattr(-,root,root)
 %doc doc/reference.html
 %{_libdir}/libexpat.so
 %{_includedir}/expat.h
 %{_includedir}/expat_external.h
-%{_libdir}/libexpat.a
 %{_libdir}/libexpat.la
+
+%files -n %{staticname}
+%defattr(-,root,root)
+%{_libdir}/libexpat.a

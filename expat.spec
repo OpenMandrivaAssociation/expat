@@ -54,7 +54,7 @@ rm conftools/libtool.m4
 libtoolize --copy --force --automake; aclocal; autoheader; autoconf
 export CFLAGS="%{optflags} -fPIC"
 
-%configure2_5x
+%configure2_5x --disable-static
 %make
 
 %check
@@ -62,11 +62,10 @@ make check
 
 %install
 rm -rf %{buildroot}
-
 %makeinstall_std mandir=%{buildroot}%{_mandir}/man1
 
 # cleanup
-rm -rf %{buildroot}%{_libdir}/*.*a
+rm -rf %{buildroot}%{_libdir}/*.la
 
 %files
 %{_bindir}/xmlwf

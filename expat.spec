@@ -5,15 +5,12 @@
 
 Summary:	XML parser written in C
 Name:		expat
-Version:	2.0.1
-Release:	16
+Version:	2.1.0
+Release:	1
 License:	MPL or GPL
 Group:		System/Libraries
 URL:		http://www.libexpat.org
-Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.bz2
-Patch0:		expat-2.0.1-CVE-2009-3720.diff
-Patch1:		expat-2.0.1-CVE-2009-3560.diff
-Patch2:		expat-2.0.1-confcxx.patch
+Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.gz
 BuildRequires:	autoconf automake libtool
 Requires:	%{libname} >= %{version}-%{release}
 
@@ -43,15 +40,10 @@ Obsoletes:	%{mklibname expat -d 1}
 Development environment for the expat XML parser.
 
 %prep
+
 %setup -q
-%patch0 -p0 -b .CVE-2009-3720
-%patch1 -p0 -b .CVE-2009-3560
-%patch2 -p1 -b .confcxx
 
 %build
-rm -rf autom4te*.cache
-rm conftools/libtool.m4
-libtoolize --copy --force --automake; aclocal; autoheader; autoconf
 export CFLAGS="%{optflags} -fPIC"
 
 %configure2_5x --disable-static
@@ -62,6 +54,7 @@ make check
 
 %install
 rm -rf %{buildroot}
+
 %makeinstall_std mandir=%{buildroot}%{_mandir}/man1
 
 # cleanup
@@ -79,3 +72,4 @@ rm -rf %{buildroot}%{_libdir}/*.la
 %{_libdir}/libexpat.so
 %{_includedir}/expat.h
 %{_includedir}/expat_external.h
+%{_libdir}/pkgconfig/expat.pc

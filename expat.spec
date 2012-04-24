@@ -11,8 +11,7 @@ License:	MPL or GPL
 Group:		System/Libraries
 URL:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.gz
-BuildRequires:	autoconf automake libtool
-Requires:	%{libname} >= %{version}-%{release}
+BuildRequires:	libtool
 
 %description
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
@@ -53,8 +52,6 @@ export CFLAGS="%{optflags} -fPIC"
 make check
 
 %install
-rm -rf %{buildroot}
-
 %makeinstall_std mandir=%{buildroot}%{_mandir}/man1
 
 # cleanup
@@ -73,3 +70,4 @@ rm -rf %{buildroot}%{_libdir}/*.la
 %{_includedir}/expat.h
 %{_includedir}/expat_external.h
 %{_libdir}/pkgconfig/expat.pc
+

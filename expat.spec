@@ -43,9 +43,9 @@ linked with expat.
 %package -n	%{devname}
 Summary:	Development environment for the expat XML parser
 Group:		Development/C
-Requires:       %{libname} >= %{version}-%{release}
+Requires:	%{libname} >= %{version}-%{release}
 %if %{with uclib}
-Requires:       uclibc-%{libname} >= %{version}-%{release}
+Requires:	uclibc-%{libname} >= %{version}-%{release}
 %endif
 Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
@@ -53,7 +53,7 @@ Obsoletes:	%{mklibname expat -d 0}
 Provides:	%{mklibname expat -d 0} = %{version}-%{release}
 Obsoletes:	%{mklibname expat -d 1}
 
-%description -n %{devname}
+%description -n	%{devname}
 Development environment for the expat XML parser.
 
 %prep
@@ -84,7 +84,7 @@ make -C shared check
 %install
 %if %{with uclibc}
 %makeinstall_std -C uclibc mandir=%{buildroot}%{_mandir}/man1
-rm -r %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
+rm -r %{buildroot}%{uclibc_root}{%{_libdir}/pkgconfig,%{_bindir}}
 %endif
 
 %makeinstall_std -C shared mandir=%{buildroot}%{_mandir}/man1

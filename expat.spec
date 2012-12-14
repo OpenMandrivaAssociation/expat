@@ -1,4 +1,3 @@
-%define libname_orig libexpat
 %define major 1
 %define libname	%mklibname expat %{major}
 %define	devname	%mklibname expat -d
@@ -47,7 +46,6 @@ Requires:	%{libname} >= %{version}-%{release}
 %if %{with uclib}
 Requires:	uclibc-%{libname} >= %{version}-%{release}
 %endif
-Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{mklibname expat -d 0}
 Provides:	%{mklibname expat -d 0} = %{version}-%{release}

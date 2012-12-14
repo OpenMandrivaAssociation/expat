@@ -1,14 +1,14 @@
 %define libname_orig libexpat
 %define major 1
-%define libname %mklibname expat %{major}
-%define develname %mklibname expat -d
+%define libname	%mklibname expat %{major}
+%define	devname	%mklibname expat -d
 
 %bcond_without	uclibc
 
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.1.0
-Release:	2
+Release:	3
 License:	MPL or GPL
 Group:		System/Libraries
 URL:		http://www.libexpat.org
@@ -22,11 +22,11 @@ BuildRequires:	uClibc-devel >= 0.9.33.2-9
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
 fully conforming. It is currently not a validating XML parser.
 
-%package -n %{libname}
+%package -n	%{libname}
 Summary:	Main library for expat
 Group:		System/Libraries
 
-%description -n %{libname}
+%description -n	%{libname}
 This package contains the library needed to run programs dynamically
 linked with expat.
 
@@ -40,7 +40,7 @@ This package contains the library needed to run programs dynamically
 linked with expat.
 %endif
 
-%package -n %{develname}
+%package -n	%{devname}
 Summary:	Development environment for the expat XML parser
 Group:		Development/C
 Requires:       %{libname} >= %{version}-%{release}
@@ -53,24 +53,21 @@ Obsoletes:	%{mklibname expat -d 0}
 Provides:	%{mklibname expat -d 0} = %{version}-%{release}
 Obsoletes:	%{mklibname expat -d 1}
 
-%description -n %{develname}
+%description -n %{devname}
 Development environment for the expat XML parser.
 
 %prep
-
 %setup -q
 
 %build
 export CFLAGS="%{optflags} -fPIC"
-export CONFIGURE_TOP=$PWD
+export CONFIGURE_TOP="$PWD"
 
 %if %{with uclibc}
 mkdir -p uclibc
 pushd uclibc
-%configure2_5x	--libdir=%{uclibc_root}%{_libdir} \
+%uclibc_configure \
 		--disable-static \
-		CC=%{uclibc_cc} \
-		CFLAGS="%{uclibc_cflags}"
 %make
 popd
 %endif
@@ -87,7 +84,7 @@ make -C shared check
 %install
 %if %{with uclibc}
 %makeinstall_std -C uclibc mandir=%{buildroot}%{_mandir}/man1
-rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
+rm -r %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
 %endif
 
 %makeinstall_std -C shared mandir=%{buildroot}%{_mandir}/man1
@@ -104,7 +101,7 @@ rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
 %{uclibc_root}%{_libdir}/libexpat.so.%{major}*
 %endif
 
-%files -n %{develname}
+%files -n %{devname}
 %doc doc/reference.html
 %{_libdir}/libexpat.so
 %if %{with uclibc}
@@ -113,4 +110,3 @@ rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
 %{_includedir}/expat.h
 %{_includedir}/expat_external.h
 %{_libdir}/pkgconfig/expat.pc
-

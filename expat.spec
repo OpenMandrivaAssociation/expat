@@ -67,7 +67,7 @@ export CONFIGURE_TOP="$PWD"
 mkdir -p uclibc
 pushd uclibc
 %uclibc_configure \
-		--disable-static \
+		--disable-static
 %make
 popd
 %endif

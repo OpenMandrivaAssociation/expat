@@ -1,4 +1,4 @@
-%define major 1
+%define	major	1
 %define libname	%mklibname expat %{major}
 %define	devname	%mklibname expat -d
 
@@ -7,7 +7,7 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.1.0
-Release:	3
+Release:	4
 License:	MPL or GPL
 Group:		System/Libraries
 URL:		http://www.libexpat.org
@@ -43,7 +43,7 @@ linked with expat.
 Summary:	Development environment for the expat XML parser
 Group:		Development/C
 Requires:	%{libname} >= %{version}-%{release}
-%if %{with uclib}
+%if %{with uclibc}
 Requires:	uclibc-%{libname} >= %{version}-%{release}
 %endif
 Provides:	%{name}-devel = %{version}-%{release}

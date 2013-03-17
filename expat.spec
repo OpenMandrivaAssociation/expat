@@ -13,6 +13,7 @@ Group:		System/Libraries
 URL:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.gz
 BuildRequires:	libtool
+Patch0:		expat-aarch64.patch
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
 %endif
@@ -56,6 +57,7 @@ Development environment for the expat XML parser.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 export CFLAGS="%{optflags} -fPIC"

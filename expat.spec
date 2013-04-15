@@ -8,12 +8,13 @@ Summary:	XML parser written in C
 Name:		expat
 Version:	2.1.0
 Release:	4
-License:	MPL or GPL
+License:	MPL or GPLv2
 Group:		System/Libraries
-URL:		http://www.libexpat.org
-Source0:	http://prdownloads.sourceforge.net/expat/expat-%{version}.tar.gz
-BuildRequires:	libtool
+Url:		http://www.libexpat.org
+Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.gz
 Patch0:		expat-aarch64.patch
+
+BuildRequires:	libtool
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
 %endif
@@ -48,8 +49,6 @@ Requires:	%{libname} >= %{version}-%{release}
 Requires:	uclibc-%{libname} >= %{version}-%{release}
 %endif
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{mklibname expat -d 0}
-Provides:	%{mklibname expat -d 0} = %{version}-%{release}
 Obsoletes:	%{mklibname expat -d 1}
 
 %description -n	%{devname}
@@ -57,7 +56,7 @@ Development environment for the expat XML parser.
 
 %prep
 %setup -q
-%patch0 -p1
+%apply_patches
 
 %build
 export CFLAGS="%{optflags} -fPIC"
@@ -67,14 +66,15 @@ export CONFIGURE_TOP="$PWD"
 mkdir -p uclibc
 pushd uclibc
 %uclibc_configure \
-		--disable-static
+	--disable-static
 %make
 popd
 %endif
 
 mkdir -p shared
 pushd shared
-%configure2_5x --disable-static
+%configure2_5x \
+	--disable-static
 %make
 popd
 
@@ -110,3 +110,4 @@ rm -r %{buildroot}%{uclibc_root}{%{_libdir}/pkgconfig,%{_bindir}}
 %{_includedir}/expat.h
 %{_includedir}/expat_external.h
 %{_libdir}/pkgconfig/expat.pc
+

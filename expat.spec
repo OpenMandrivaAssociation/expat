@@ -7,7 +7,7 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.1.0
-Release:	15
+Release:	16
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
@@ -73,7 +73,7 @@ popd
 
 mkdir -p shared
 pushd shared
-%configure2_5x \
+%configure \
 	--disable-static
 %make
 popd

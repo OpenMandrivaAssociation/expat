@@ -7,13 +7,13 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.1.0
-Release:	16
+Release:	17
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.gz
+Source1:	%{name}.rpmlintrc
 Patch0:		expat-aarch64.patch
-
 BuildRequires:	libtool
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
@@ -39,15 +39,23 @@ Group:		System/Libraries
 %description -n	uclibc-%{libname}
 This package contains the library needed to run programs dynamically
 linked with expat.
+
+%package -n	uclibc-%{devname}
+Summary:	Development environment for the expat XML parser
+Group:		Development/C
+Requires:	uclibc-%{libname} >= %{version}-%{release}
+Requires:	%{devname} >= %{version}-%{release}
+Provides:	uclibc-%{name}-devel = %{version}-%{release}
+Conflicts:	%{devname} < 2.1.0-17
+
+%description -n	uclibc-%{devname}
+Development environment for the expat XML parser.
 %endif
 
 %package -n	%{devname}
 Summary:	Development environment for the expat XML parser
 Group:		Development/C
 Requires:	%{libname} >= %{version}-%{release}
-%if %{with uclibc}
-Requires:	uclibc-%{libname} >= %{version}-%{release}
-%endif
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{mklibname expat -d 1}
 
@@ -99,14 +107,14 @@ rm -r %{buildroot}%{uclibc_root}{%{_libdir}/pkgconfig,%{_bindir}}
 %if %{with uclibc}
 %files -n uclibc-%{libname}
 %{uclibc_root}%{_libdir}/libexpat.so.%{major}*
+
+%files -n uclibc-%{devname}
+%{uclibc_root}%{_libdir}/libexpat.so
 %endif
 
 %files -n %{devname}
 %doc doc/reference.html
 %{_libdir}/libexpat.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libexpat.so
-%endif
 %{_includedir}/expat.h
 %{_includedir}/expat_external.h
 %{_libdir}/pkgconfig/expat.pc

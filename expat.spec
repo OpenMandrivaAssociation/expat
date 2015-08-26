@@ -2,12 +2,12 @@
 %define libname	%mklibname expat %{major}
 %define	devname	%mklibname expat -d
 
-%bcond_without	uclibc
+%bcond_with	uclibc
 
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.1.0
-Release:	18
+Release:	19
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org

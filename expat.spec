@@ -6,14 +6,13 @@
 
 Summary:	XML parser written in C
 Name:		expat
-Version:	2.1.0
-Release:	19
+Version:	2.1.1
+Release:	1
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
-Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.gz
+Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.bz2
 Source1:	%{name}.rpmlintrc
-Patch0:		expat-aarch64.patch
 BuildRequires:	libtool
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
@@ -116,6 +115,6 @@ rm -r %{buildroot}%{uclibc_root}{%{_libdir}/pkgconfig,%{_bindir}}
 %doc doc/reference.html
 %{_libdir}/libexpat.so
 %{_includedir}/expat.h
+%{_includedir}/expat_config.h
 %{_includedir}/expat_external.h
 %{_libdir}/pkgconfig/expat.pc
-

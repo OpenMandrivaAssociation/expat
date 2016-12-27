@@ -2,10 +2,13 @@
 %define libname	%mklibname expat %{major}
 %define	devname	%mklibname expat -d
 
+# (tpg) optimize it a bit
+%global optflags %optflags -O3
+
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.2.0
-Release:	2
+Release:	3
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org

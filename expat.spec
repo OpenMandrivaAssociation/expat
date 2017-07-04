@@ -14,7 +14,6 @@ Group:		System/Libraries
 Url:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.bz2
 Source1:	%{name}.rpmlintrc
-Patch0:		expat-2.1.1-CVE-2016-0718-regression.patch
 BuildRequires:	libtool
 
 %description

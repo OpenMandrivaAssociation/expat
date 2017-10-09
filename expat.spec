@@ -54,7 +54,8 @@ export CFLAGS="%{optflags} -fPIC"
 make check
 
 %install
-%makeinstall_std mandir=%{buildroot}%{_mandir}/man1
+%makeinstall_std mandir=%{_mandir}/man1
+rm -rf %{buildroot}%{_docdir}/%{name}
 
 %files
 %{_bindir}/xmlwf

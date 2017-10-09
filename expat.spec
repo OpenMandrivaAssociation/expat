@@ -7,7 +7,7 @@
 
 Summary:	XML parser written in C
 Name:		expat
-Version:	2.2.1
+Version:	2.2.4
 Release:	1
 License:	MPL or GPLv2
 Group:		System/Libraries
@@ -33,7 +33,7 @@ Summary:	Development environment for the expat XML parser
 Group:		Development/C
 Requires:	%{libname} >= %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{mklibname expat -d 1}
+Obsoletes:	%{mklibname expat -d 1} < 2.2.4
 
 %description -n	%{devname}
 Development environment for the expat XML parser.
@@ -54,7 +54,8 @@ export CFLAGS="%{optflags} -fPIC"
 make check
 
 %install
-%makeinstall_std mandir=%{buildroot}%{_mandir}/man1
+%makeinstall_std mandir=%{_mandir}/man1
+rm -rf %{buildroot}%{_docdir}/%{name}
 
 %files
 %{_bindir}/xmlwf

@@ -1,6 +1,6 @@
-%define	major	1
-%define libname	%mklibname expat %{major}
-%define	devname	%mklibname expat -d
+%define major 1
+%define libname %mklibname expat %{major}
+%define devname %mklibname expat -d
 
 # (tpg) optimize it a bit
 %global optflags %optflags -O3
@@ -8,7 +8,7 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.2.6
-Release:	2
+Release:	3
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
@@ -20,27 +20,26 @@ BuildRequires:	libtool
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be
 fully conforming. It is currently not a validating XML parser.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Main library for expat
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with expat.
 
-%package -n	%{devname}
+%package -n %{devname}
 Summary:	Development environment for the expat XML parser
 Group:		Development/C
-Requires:	%{libname} >= %{version}-%{release}
-Provides:	%{name}-devel = %{version}-%{release}
+Requires:	%{libname} >= %{EVRD}
+Provides:	%{name}-devel = %{EVRD}
 Obsoletes:	%{mklibname expat -d 1} < 2.2.4
 
-%description -n	%{devname}
+%description -n %{devname}
 Development environment for the expat XML parser.
 
 %prep
-%setup -q
-%apply_patches
+%autosetup -p1
 
 %build
 export CFLAGS="%{optflags} -fPIC"
@@ -48,13 +47,13 @@ export CFLAGS="%{optflags} -fPIC"
 %configure \
 	--disable-static
 
-%make
+%make_build
 
 %check
 make check
 
 %install
-%makeinstall_std mandir=%{_mandir}/man1
+%make_install mandir=%{_mandir}/man1
 rm -rf %{buildroot}%{_docdir}/%{name}
 
 %files

@@ -3,12 +3,19 @@
 %define devname %mklibname expat -d
 
 # (tpg) optimize it a bit
-%global optflags %optflags -O3
+%global optflags %optflags -O3 -fPIC
+
+# (tpg) enable PGO build
+%ifnarch riscv64
+%bcond_without pgo
+%else
+%bcond_with pgo
+%endif
 
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.2.6
-Release:	3
+Release:	4
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
@@ -42,8 +49,28 @@ Development environment for the expat XML parser.
 %autosetup -p1
 
 %build
-export CFLAGS="%{optflags} -fPIC"
+%if %{with pgo}
+CFLAGS_PGO="%{optflags} -fprofile-instr-generate"
+CXXFLAGS_PGO="%{optflags} -fprofile-instr-generate"
+FFLAGS_PGO="$CFLAGS_PGO"
+FCFLAGS_PGO="$CFLAGS_PGO"
+LDFLAGS_PGO="%{ldflags} -fprofile-instr-generate"
+export LLVM_PROFILE_FILE=%{name}-%p.profile.d
+export LD_LIBRARY_PATH="$(pwd)"
 
+CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %configure --disable-static
+CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" make check
+
+unset LD_LIBRARY_PATH
+unset LLVM_PROFILE_FILE
+llvm-profdata merge --output=%{name}.profile *.profile.d
+rm -f *.profile.d
+make clean
+
+CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+%endif
 %configure \
 	--disable-static
 

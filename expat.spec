@@ -23,6 +23,7 @@ Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.xz
 Source1:	%{name}.rpmlintrc
 BuildRequires:	libtool
 BuildRequires:	docbook-utils
+BuildRequires:	xmlto
 
 %description
 Expat is an XML 1.0 parser written in C by James Clark.  It aims to be

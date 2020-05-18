@@ -1,6 +1,15 @@
+# expat is used by dbus, which is used by wine and steam
+%ifarch %{x86_64}
+%bcond_without compat32
+%else
+%bcond_with compat32
+%endif
+
 %define major 1
 %define libname %mklibname expat %{major}
 %define devname %mklibname expat -d
+%define lib32name libexpat%{major}
+%define dev32name libexpat-devel
 
 # (tpg) optimize it a bit
 %global optflags %optflags -O3 -fPIC
@@ -15,7 +24,7 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.2.9
-Release:	1
+Release:	2
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
@@ -47,10 +56,38 @@ Obsoletes:	%{mklibname expat -d 1} < 2.2.4
 %description -n %{devname}
 Development environment for the expat XML parser.
 
+%if %{with compat32}
+%package -n %{lib32name}
+Summary:	Main library for expat (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32name}
+This package contains the library needed to run programs dynamically
+linked with expat.
+
+%package -n %{dev32name}
+Summary:	Development environment for the expat XML parser
+Group:		Development/C
+Requires:	%{lib32name} = %{EVRD}
+Requires:	%{devname} = %{EVRD}
+
+%description -n %{dev32name}
+Development environment for the expat XML parser.
+%endif
+
 %prep
 %autosetup -p1
 
 %build
+export CONFIGURE_TOP="$(pwd)"
+%if %{with compat32}
+mkdir build32
+cd build32
+%configure32
+cd ..
+%endif
+mkdir build
+cd build
 %if %{with pgo}
 CFLAGS_PGO="%{optflags} -fprofile-instr-generate"
 CXXFLAGS_PGO="%{optflags} -fprofile-instr-generate"
@@ -75,14 +112,24 @@ LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 %endif
 %configure \
 	--disable-static
+cd ..
 
-%make_build
+%if %{with compat32}
+%make_build -C build32
+%endif
+%make_build -C build
 
 %check
-make check
+%if %{with compat32}
+make check -C build32
+%endif
+make check -C build
 
 %install
-%make_install mandir=%{_mandir}/man1
+%if %{with compat32}
+%make_install -C build32 mandir=%{_mandir}/man1
+%endif
+%make_install -C build mandir=%{_mandir}/man1
 rm -rf %{buildroot}%{_docdir}/%{name}
 
 %files
@@ -99,3 +146,12 @@ rm -rf %{buildroot}%{_docdir}/%{name}
 %{_includedir}/expat_config.h
 %{_includedir}/expat_external.h
 %{_libdir}/pkgconfig/expat.pc
+
+%if %{with compat32}
+%files -n %{lib32name}
+%{_prefix}/lib/libexpat.so.%{major}*
+
+%files -n %{dev32name}
+%{_prefix}/lib/libexpat.so
+%{_prefix}/lib/pkgconfig/expat.pc
+%endif

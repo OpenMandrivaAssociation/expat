@@ -23,8 +23,8 @@
 
 Summary:	XML parser written in C
 Name:		expat
-Version:	2.2.9
-Release:	2
+Version:	2.2.10
+Release:	1
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
@@ -111,7 +111,8 @@ CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 %endif
 %configure \
-	--disable-static
+	--disable-static \
+	--with-getrandom
 cd ..
 
 %if %{with compat32}

@@ -30,7 +30,8 @@ Group:		System/Libraries
 Url:		http://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.xz
 Source1:	%{name}.rpmlintrc
-BuildRequires:	libtool
+BuildRequires:	cmake
+BuildRequires:	ninja
 BuildRequires:	docbook-utils
 BuildRequires:	xmlto
 
@@ -79,46 +80,47 @@ Development environment for the expat XML parser.
 %autosetup -p1
 
 %build
-export CONFIGURE_TOP="$(pwd)"
 %if %{with compat32}
-mkdir build32
-cd build32
-%configure32
+%cmake32 \
+	-G Ninja
+
 cd ..
 %endif
-mkdir build
-cd build
+
 %if %{with pgo}
-CFLAGS_PGO="%{optflags} -fprofile-instr-generate"
-CXXFLAGS_PGO="%{optflags} -fprofile-instr-generate"
-FFLAGS_PGO="$CFLAGS_PGO"
-FCFLAGS_PGO="$CFLAGS_PGO"
-LDFLAGS_PGO="%{ldflags} -fprofile-instr-generate"
+%define _vpath_builddir pgo
+mkdir pgo
 export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
-
-CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %configure --disable-static --without-docbook --without-xmlwf
-CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" make check
+CFLAGS="%{optflags} -fprofile-instr-generate" \
+CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+FFLAGS="$CFLAGS" \
+FCFLAGS="$CFLAGS" \
+LDFLAGS="%{ldflags} -fprofile-instr-generate" \
+%cmake \
+	-G Ninja
+%ninja_build
+%ninja_test ||:
 
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
 llvm-profdata merge --output=%{name}.profile *.profile.d
-rm -f *.profile.d
-make clean
+ninja clean
+rm -rf pgo
+
+%undefine _vpath_builddir
 
 CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 %endif
-%configure \
-	--disable-static \
-	--with-getrandom
+%cmake -DBUILD_SHARED_LIBS=ON -G Ninja
 cd ..
 
 %if %{with compat32}
-%make_build -C build32
+%ninja_build -C build32
 %endif
-%make_build -C build
+%ninja_build -C build
 
 %check
 %if %{with compat32}
@@ -128,9 +130,9 @@ make check -C build
 
 %install
 %if %{with compat32}
-%make_install -C build32 mandir=%{_mandir}/man1
+%ninja_install -C build32 mandir=%{_mandir}/man1
 %endif
-%make_install -C build mandir=%{_mandir}/man1
+%ninja_install -C build mandir=%{_mandir}/man1
 rm -rf %{buildroot}%{_docdir}/%{name}
 
 %files

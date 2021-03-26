@@ -147,6 +147,8 @@ rm -rf %{buildroot}%{_docdir}/%{name}
 %{_includedir}/expat_config.h
 %{_includedir}/expat_external.h
 %{_libdir}/pkgconfig/expat.pc
+%dir %{_libdir}/cmake/%{name}-%{version}
+%{_libdir}/cmake/%{name}-%{version}/*.cmake
 
 %if %{with compat32}
 %files -n %{lib32name}

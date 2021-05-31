@@ -115,7 +115,6 @@ CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 %endif
 %cmake -DBUILD_SHARED_LIBS=ON -G Ninja
-cd ..
 
 %if %{with compat32}
 %ninja_build -C build32

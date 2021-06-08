@@ -84,54 +84,52 @@ Development environment for the expat XML parser.
 %cmake32 \
 	-G Ninja
 
+%ninja_build
 cd ..
 %endif
 
 %if %{with pgo}
-%define _vpath_builddir pgo
-mkdir pgo
 export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
 CFLAGS="%{optflags} -fprofile-instr-generate" \
 CXXFLAGS="%{optflags} -fprofile-instr-generate" \
 FFLAGS="$CFLAGS" \
 FCFLAGS="$CFLAGS" \
-LDFLAGS="%{ldflags} -fprofile-instr-generate" \
+LDFLAGS="%{build_ldflags} -fprofile-instr-generate" \
 %cmake \
 	-G Ninja
+
 %ninja_build
 %ninja_test ||:
 
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
-llvm-profdata merge --output=%{name}.profile *.profile.d
+llvm-profdata merge --output=../%{name}.profile *.profile.d
+rm -f *.profile.d
 ninja clean
-rm -rf pgo
-
-%undefine _vpath_builddir
+cd ..
+rm -rf build
 
 CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+LDFLAGS="%{build_ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 %endif
 %cmake -DBUILD_SHARED_LIBS=ON -G Ninja
 
-%if %{with compat32}
-%ninja_build -C build32
-%endif
-%ninja_build -C build
+%ninja_build
+cd ..
 
 %check
 %if %{with compat32}
-make check -C build32
+%ninja_test -C build32
 %endif
-make check -C build
+%ninja_test -C build
 
 %install
 %if %{with compat32}
-%ninja_install -C build32 mandir=%{_mandir}/man1
+%ninja_install -C build32
 %endif
-%ninja_install -C build mandir=%{_mandir}/man1
+%ninja_install -C build
 rm -rf %{buildroot}%{_docdir}/%{name}
 
 %files
@@ -158,4 +156,6 @@ rm -rf %{buildroot}%{_docdir}/%{name}
 %files -n %{dev32name}
 %{_prefix}/lib/libexpat.so
 %{_prefix}/lib/pkgconfig/expat.pc
+%dir %{_prefix}/lib/cmake/%{name}-%{version}
+%{_prefix}/lib/cmake/%{name}-%{version}/*.cmake
 %endif

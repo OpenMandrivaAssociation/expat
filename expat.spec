@@ -12,19 +12,15 @@
 %define dev32name libexpat-devel
 
 # (tpg) optimize it a bit
-%global optflags %optflags -O3 -fPIC
+%global optflags %{optflags} -O3 -fPIC
 
 # (tpg) enable PGO build
-%ifnarch riscv64
 %bcond_without pgo
-%else
-%bcond_with pgo
-%endif
 
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.4.1
-Release:	1
+Release:	2
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
@@ -89,13 +85,11 @@ cd ..
 %endif
 
 %if %{with pgo}
-export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
-CFLAGS="%{optflags} -fprofile-instr-generate" \
-CXXFLAGS="%{optflags} -fprofile-instr-generate" \
-FFLAGS="$CFLAGS" \
-FCFLAGS="$CFLAGS" \
-LDFLAGS="%{build_ldflags} -fprofile-instr-generate" \
+
+CFLAGS="%{optflags} -fprofile-generate" \
+CXXFLAGS="%{optflags} -fprofile-generate" \
+LDFLAGS="%{build_ldflags} -fprofile-generate" \
 %cmake \
 	-G Ninja
 
@@ -103,16 +97,16 @@ LDFLAGS="%{build_ldflags} -fprofile-instr-generate" \
 %ninja_test ||:
 
 unset LD_LIBRARY_PATH
-unset LLVM_PROFILE_FILE
-llvm-profdata merge --output=../%{name}.profile *.profile.d
-rm -f *.profile.d
+llvm-profdata merge --output=../%{name}-llvm.profdata *.profraw
+PROFDATA="$(realpath ../%{name}-llvm.profdata)"
+rm -f *.profraw
 ninja clean
 cd ..
 rm -rf build
 
-CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-LDFLAGS="%{build_ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
+CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
+LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 %endif
 %cmake -DBUILD_SHARED_LIBS=ON -G Ninja
 
@@ -134,7 +128,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}
 
 %files
 %{_bindir}/xmlwf
-%{_mandir}/man*/*
+%doc %{_mandir}/man*/*
 
 %files -n %{libname}
 %{_libdir}/libexpat.so.%{major}*

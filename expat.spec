@@ -20,7 +20,7 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.4.2
-Release:	1
+Release:	2
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		http://www.libexpat.org
@@ -97,7 +97,7 @@ LDFLAGS="%{build_ldflags} -fprofile-generate" \
 %ninja_test ||:
 
 unset LD_LIBRARY_PATH
-llvm-profdata merge --output=../%{name}-llvm.profdata *.profraw
+llvm-profdata merge --output=../%{name}-llvm.profdata $(find . -name "*.profraw" -type f)
 PROFDATA="$(realpath ../%{name}-llvm.profdata)"
 rm -f *.profraw
 ninja clean

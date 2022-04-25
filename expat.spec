@@ -19,7 +19,7 @@
 
 Summary:	XML parser written in C
 Name:		expat
-Version:	2.4.7
+Version:	2.4.8
 Release:	1
 License:	MPL or GPLv2
 Group:		System/Libraries
@@ -57,6 +57,8 @@ Development environment for the expat XML parser.
 %package -n %{lib32name}
 Summary:	Main library for expat (32-bit)
 Group:		System/Libraries
+BuildRequires:	libc6
+Requires:	libc6
 
 %description -n %{lib32name}
 This package contains the library needed to run programs dynamically

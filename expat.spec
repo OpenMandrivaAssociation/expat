@@ -15,7 +15,11 @@
 %global optflags %{optflags} -O3 -fPIC
 
 # (tpg) enable PGO build
+%if %{cross_compiling}
+%bcond_with pgo
+%else
 %bcond_without pgo
+%endif
 
 Summary:	XML parser written in C
 Name:		expat
@@ -115,11 +119,13 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 %ninja_build
 cd ..
 
+%if ! %{cross_compiling}
 %check
 %if %{with compat32}
 %ninja_test -C build32
 %endif
 %ninja_test -C build
+%endif
 
 %install
 %if %{with compat32}

@@ -27,7 +27,7 @@ Version:	2.6.3
 Release:	1
 License:	MPL or GPLv2
 Group:		System/Libraries
-Url:		http://www.libexpat.org
+Url:		https://www.libexpat.org
 Source0:	http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.xz
 Source1:	%{name}.rpmlintrc
 BuildRequires:	cmake

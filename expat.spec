@@ -14,17 +14,10 @@
 # (tpg) optimize it a bit
 %global optflags %{optflags} -O3 -fPIC
 
-# (tpg) enable PGO build
-%if %{cross_compiling}
-%bcond_with pgo
-%else
-%bcond_without pgo
-%endif
-
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.8.4
-Release:	1
+Release:	2
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		https://www.libexpat.org
@@ -93,25 +86,27 @@ Development environment for the expat XML parser.
 
 %build
 %if %{with compat32}
+# i386-pc-linux-gnu has builtins but no libclang_rt.profile.a, so
+# cmake32 cannot be instrumented. Strip flags %pgo injects into CFLAGS.
+CFLAGS32="$(echo "${CFLAGS:-%{optflags}}" | sed -e 's/ -fprofile-[^ ]*//g;s/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32"
+CXXFLAGS32="$(echo "${CXXFLAGS:-%{optflags}}" | sed -e 's/ -fprofile-[^ ]*//g;s/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32"
+LDFLAGS32="$(echo "${LDFLAGS:-%{build_ldflags}}" | sed -e 's/ -fprofile-[^ ]*//g;s/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32"
+export CFLAGS32 CXXFLAGS32 LDFLAGS32
 %cmake32 \
 	-G Ninja
 
 %ninja_build
 cd ..
 %endif
-
-%if %{with pgo}
-CFLAGS="%{optflags} -fprofile-generate" \
-CXXFLAGS="%{optflags} -fprofile-generate" \
-LDFLAGS="%{build_ldflags} -fprofile-generate" \
-%cmake \
-	-G Ninja
+%cmake -DBUILD_SHARED_LIBS=ON -G Ninja
 
 %ninja_build
-export LD_LIBRARY_PATH="$(pwd)${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+cd ..
+
+%pgo
 # Typical well-formed traffic (dbus / config / appstream-like). The
 # test suite overweights error paths and is a poor PGO profile.
-train=../pgo-train
+train=pgo-train
 mkdir -p "$train"
 cat > "$train/dbus.xml" <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -183,7 +178,8 @@ EOF
 	done
 	echo '</catalog>'
 } > "$train/large.xml"
-xmlwf=./xmlwf/xmlwf
+xmlwf=build/xmlwf/xmlwf
+export LD_LIBRARY_PATH="$(pwd)/build${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 i=0
 while [ $i -lt 40 ]; do
 	"$xmlwf" -t "$train/dbus.xml" "$train/config.xml" "$train/appstream.xml"
@@ -197,22 +193,6 @@ while [ $i -lt 8 ]; do
 	"$xmlwf" -t -r -g 8192 "$train/large.xml"
 	i=$((i + 1))
 done
-unset LD_LIBRARY_PATH
-llvm-profdata merge --output=../%{name}-llvm.profdata $(find . -name "*.profraw" -type f)
-PROFDATA="$(realpath ../%{name}-llvm.profdata)"
-rm -f *.profraw
-ninja clean
-cd ..
-rm -rf build
-
-CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
-CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
-LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
-%endif
-%cmake -DBUILD_SHARED_LIBS=ON -G Ninja
-
-%ninja_build
-cd ..
 
 %if ! %{cross_compiling}
 %check

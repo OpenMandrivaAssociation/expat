@@ -23,7 +23,7 @@
 
 Summary:	XML parser written in C
 Name:		expat
-Version:	2.8.3
+Version:	2.8.4
 Release:	1
 License:	MPL or GPLv2
 Group:		System/Libraries

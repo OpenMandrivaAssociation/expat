@@ -42,6 +42,7 @@ BuildRequires:	cross-i686-openmandriva-linux-gnu-clang
 BuildRequires:	cross-i686-openmandriva-linux-gnu-libc
 BuildRequires:	cross-i686-openmandriva-linux-gnu-gcc
 BuildRequires:	cross-i686-openmandriva-linux-gnu-binutils
+BuildRequires:	cross-i686-openmandriva-linux-gnu-kernel-headers
 %endif
 
 %description

@@ -17,7 +17,7 @@
 Summary:	XML parser written in C
 Name:		expat
 Version:	2.8.4
-Release:	2
+Release:	3
 License:	MPL or GPLv2
 Group:		System/Libraries
 Url:		https://www.libexpat.org
@@ -86,11 +86,12 @@ Development environment for the expat XML parser.
 
 %build
 %if %{with compat32}
-# i386-pc-linux-gnu has builtins but no libclang_rt.profile.a, so
-# cmake32 cannot be instrumented. Strip flags %pgo injects into CFLAGS.
-CFLAGS32="$(echo "${CFLAGS:-%{optflags}}" | sed -e 's/ -fprofile-[^ ]*//g;s/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32"
-CXXFLAGS32="$(echo "${CXXFLAGS:-%{optflags}}" | sed -e 's/ -fprofile-[^ ]*//g;s/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32"
-LDFLAGS32="$(echo "${LDFLAGS:-%{build_ldflags}}" | sed -e 's/ -fprofile-[^ ]*//g;s/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32"
+# clang -m32 uses i386-pc-linux-gnu (builtins only).
+# cross-i686-openmandriva-linux-gnu-clang ships libclang_rt.profile.a
+# for i686-openmandriva-linux-gnu, which %pgo instrumentation needs.
+CFLAGS32="$(echo "${CFLAGS:-%{optflags}}" | sed -e 's/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32 --target=i686-openmandriva-linux-gnu"
+CXXFLAGS32="$(echo "${CXXFLAGS:-%{optflags}}" | sed -e 's/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32 --target=i686-openmandriva-linux-gnu"
+LDFLAGS32="$(echo "${LDFLAGS:-%{build_ldflags}}" | sed -e 's/ -m64//g;s/ -mx32//g;s/ -flto//g') -m32 --target=i686-openmandriva-linux-gnu"
 export CFLAGS32 CXXFLAGS32 LDFLAGS32
 %cmake32 \
 	-G Ninja
@@ -178,20 +179,24 @@ EOF
 	done
 	echo '</catalog>'
 } > "$train/large.xml"
-xmlwf=build/xmlwf/xmlwf
-export LD_LIBRARY_PATH="$(pwd)/build${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-i=0
-while [ $i -lt 40 ]; do
-	"$xmlwf" -t "$train/dbus.xml" "$train/config.xml" "$train/appstream.xml"
-	"$xmlwf" -t -n "$train/dbus.xml" "$train/appstream.xml" "$train/large.xml"
-	"$xmlwf" -t -r "$train/dbus.xml" "$train/config.xml"
-	i=$((i + 1))
-done
-i=0
-while [ $i -lt 8 ]; do
-	"$xmlwf" -t "$train/large.xml"
-	"$xmlwf" -t -r -g 8192 "$train/large.xml"
-	i=$((i + 1))
+# Train each instrumented xmlwf (64-bit and, when built, 32-bit).
+for dir in build build32; do
+	xmlwf=$dir/xmlwf/xmlwf
+	[ -x "$xmlwf" ] || continue
+	export LD_LIBRARY_PATH="$(pwd)/$dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+	i=0
+	while [ $i -lt 40 ]; do
+		"$xmlwf" -t "$train/dbus.xml" "$train/config.xml" "$train/appstream.xml"
+		"$xmlwf" -t -n "$train/dbus.xml" "$train/appstream.xml" "$train/large.xml"
+		"$xmlwf" -t -r "$train/dbus.xml" "$train/config.xml"
+		i=$((i + 1))
+	done
+	i=0
+	while [ $i -lt 8 ]; do
+		"$xmlwf" -t "$train/large.xml"
+		"$xmlwf" -t -r -g 8192 "$train/large.xml"
+		i=$((i + 1))
+	done
 done
 
 %if ! %{cross_compiling}

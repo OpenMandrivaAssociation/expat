@@ -35,12 +35,13 @@ BuildRequires:	ninja
 BuildRequires:	docbook-utils
 BuildRequires:	xmlto
 %if %{with compat32}
-# clang -m32 reads i386-*.cfg, which sets
-# --sysroot /usr/i686-openmandriva-linux-gnu and needs compiler-rt
-# builtins plus that sysroot's libc and libgcc_s.
+# clang -m32 reads i386-*.cfg (--sysroot /usr/i686-openmandriva-linux-gnu).
+# binutils ships the usr -> ./ symlink so lld can resolve the absolute
+# paths in the sysroot's libc.so linker script.
 BuildRequires:	cross-i686-openmandriva-linux-gnu-clang
 BuildRequires:	cross-i686-openmandriva-linux-gnu-libc
 BuildRequires:	cross-i686-openmandriva-linux-gnu-gcc
+BuildRequires:	cross-i686-openmandriva-linux-gnu-binutils
 %endif
 
 %description

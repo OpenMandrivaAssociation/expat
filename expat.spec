@@ -35,9 +35,12 @@ BuildRequires:	ninja
 BuildRequires:	docbook-utils
 BuildRequires:	xmlto
 %if %{with compat32}
-# Host clang defaults to -rtlib=compiler-rt; cmake32's compiler check
-# links i686 libclang_rt.builtins.a from this package.
+# clang -m32 reads i386-*.cfg, which sets
+# --sysroot /usr/i686-openmandriva-linux-gnu and needs compiler-rt
+# builtins plus that sysroot's libc and libgcc_s.
 BuildRequires:	cross-i686-openmandriva-linux-gnu-clang
+BuildRequires:	cross-i686-openmandriva-linux-gnu-libc
+BuildRequires:	cross-i686-openmandriva-linux-gnu-gcc
 %endif
 
 %description
